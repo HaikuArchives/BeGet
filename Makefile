@@ -34,6 +34,13 @@ DEFINES=
 WARNINGS = ALL
 
 #--------------------------------------------------------
+#   determine wheather this is Haiku or not
+OS=$(shell uname -o)
+ifeq ($(OS), Haiku)
+LIBS= be network game tracker media
+endif
+
+#--------------------------------------------------------
 #	determine wheather running on x86 or ppc
 MACHINE=$(shell uname -m)
 ifeq ($(MACHINE), BePC)

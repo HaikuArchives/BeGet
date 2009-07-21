@@ -106,7 +106,8 @@ HApp::AboutRequested()
 {
 	(new HAboutWindow("BeGet",
 					__DATE__,
-					"Created by Atsushi Takamatsu@Sapporo,Japan",
-					"http://beget.sourceforge.net",
-					"atsushi@io.ocn.ne.jp"))->Show();
+					"Copyright 1999-2001 Atsushi Takamatsu@Sapporo, Japan.\n"
+					"Now maintained by Scott McCreary.\n",
+					"http://dev.osdrawer.net/projects/show/beget",
+					"haiku@scottmc.com"))->Show();
 }

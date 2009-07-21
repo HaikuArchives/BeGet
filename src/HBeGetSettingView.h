@@ -2,6 +2,7 @@
 #define __HBEGETSETTING_VIEW_H__
 
 #include <View.h>
+#include <TextControl.h>
 
 enum{
 	M_WATCH_CHANGED = 'MCHD',

@@ -16,7 +16,7 @@
 #include <Roster.h>
 #include <stdio.h>
 #include <Debug.h>
-#include <socket.h>
+#include <sys/socket.h>
 
 /***********************************************************
  * Constructor
@@ -622,7 +622,7 @@ HListItem::Wget()
 	SetState(T_CONNECTING);
 	char *argv[40];
 
-	argv[0] = strdup("/boot/home/config/bin/wget");
+	argv[0] = strdup("wget");
 
 	const char* option;
 	((HApp*)be_app)->Prefs()->GetData("option",&option);

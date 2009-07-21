@@ -2,6 +2,7 @@
 #define __HLISTVIEW_H__
 
 #include "ColumnListView.h"
+#include <Node.h>
 
 enum{
 	M_SELECTION_CHANGED = 'MSEL',

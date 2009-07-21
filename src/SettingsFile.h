@@ -7,6 +7,7 @@
 #include <Message.h>
 #include <FindDirectory.h>
 #include <Path.h>
+#include <File.h>
 
 struct attr_info;
 
