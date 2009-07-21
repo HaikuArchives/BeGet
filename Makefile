@@ -20,7 +20,8 @@ SRCS=  ./src/HAddUrlDlg.cpp\
        ./src/URLSetting.cpp\
        ./src/main.cpp
 # Resources
-RSRCS= ./resources/Resource.rsrc ./resources/icon.rsrc 
+RDEFS= ./resources/BeGet.rdef
+RSRCS= ./resources/BeGet.rsrc 
 #Libraries
 LIBS= be netapi game tracker media
 LIBPATHS=
@@ -68,6 +69,7 @@ endif
 
 #	specify the tools for adding and removing resources
 	XRES		= xres
+	RC			= rc
 # 	platform specific settings
 
 #	x86 Settings
@@ -292,6 +294,13 @@ else
 	BUILD_LINE = $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endif
 
+#	create the rsrc file(s)
+	ifeq ($(RDEFS), )
+		DO_RDEFS :=
+	else
+		DO_RDEFS := $(RC) $(RDEFS)
+	endif
+	
 #	create the resource instruction
 	ifeq ($(RSRCS), )
 		DO_RSRCS :=
@@ -303,8 +312,9 @@ endif
 #	define the actual work to be done	
 default: $(TARGET)
 
-$(TARGET):	$(OBJ_DIR) $(OBJS) $(RSRCS)
+$(TARGET):	$(OBJ_DIR) $(OBJS) $(RDEFS)
 		$(BUILD_LINE)
+		$(DO_RDEFS)
 		$(DO_RSRCS)
 		$(MIMESET) -f $@
 
