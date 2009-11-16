@@ -46,13 +46,13 @@ endif
 MACHINE=$(shell uname -m)
 ifeq ($(MACHINE), BePC)
 	CPU = x86
-	LIBS+=stdc++.r4 ./libs/Utils/libUtils.a ./libs/Toolbar/libToolbar.a ./libs/Santa/sgb.a\
+	LIBS+=stdc++.r4 ./libs/Utils/libUtils.a ./libs/Toolbar/libToolbar.a ./libs/Santa/libsgb.a\
 		libs/liblocale/liblocale.a
 else
 	CPU = ppc
 	NAME = BeGet_ppc
 	LIBS+=mslcpp_4_0 ./libs/Utils/libUtils_ppc.a ./libs/Toolbar/libToolbar_ppc.a\
-		libs/liblocale/liblocale_ppc.a ./libs/Santa/sgb_ppc.a
+		libs/liblocale/liblocale_ppc.a ./libs/Santa/libsgb_ppc.a
 endif
 #	set the directory where object files and binaries will be created
 	OBJ_DIR		:= obj.$(CPU)
