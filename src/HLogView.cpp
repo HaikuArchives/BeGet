@@ -5,31 +5,28 @@
  * Constructor
  ***********************************************************/
 HLogView::HLogView(BRect rect,
-					const char* name,
-					int32 resize,
-					int32 flags)
-		:CTextView(rect,name,resize,flags)
-{
-	SetFontAndColor(be_fixed_font,B_FONT_ALL,&LightGreen);
+				   const char* name,
+				   int32 resize,
+				   int32 flags)
+	: CTextView(rect, name, resize, flags) {
+	SetFontAndColor(be_fixed_font, B_FONT_ALL, &LightGreen);
 
 	SetWordWrap(false);
 	SetViewColor(Black);
-	MakeEditable(false);	
+	MakeEditable(false);
 }
 
 /***********************************************************
  * Destructor
  ***********************************************************/
-HLogView::~HLogView()
-{
+HLogView::~HLogView() {
 }
 
 /***********************************************************
  * ScrollToEnd
  ***********************************************************/
 void
-HLogView::ScrollToEnd()
-{
-	Select(TextLength(),TextLength());
+HLogView::ScrollToEnd() {
+	Select(TextLength(), TextLength());
 	ScrollToSelection();
 }

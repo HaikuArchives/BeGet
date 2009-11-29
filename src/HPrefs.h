@@ -3,11 +3,10 @@
 
 #include "HSetting.h"
 
-class HPrefs:public HSetting
-{
+class HPrefs: public HSetting {
 public:
-			HPrefs(const char* name = K_PREFS_FILE_NAME
-					, const char* dir_name = NULL);
+	HPrefs(const char* name = K_PREFS_FILE_NAME
+							  , const char* dir_name = NULL);
 	virtual		~HPrefs();
 
 protected:

@@ -7,26 +7,26 @@ class HWGetSettingView;
 class HBeGetSettingView;
 class HSoundSettingView;
 
-enum{
+enum {
 	M_APPLY_MESSAGE = 'MAPL',
 	M_SETTING_CHANGED = 'MSTC',
 	M_SET_CHAT_FONT_MSG = 'MSEF'
 };
 
-class HSettingWindow :public BWindow {
+class HSettingWindow : public BWindow {
 public:
-				HSettingWindow(BRect rect);
+	HSettingWindow(BRect rect);
 	virtual		~HSettingWindow();
 
 protected:
-		void	InitGUI();
-virtual void	MessageReceived(BMessage *message);
-virtual bool	QuitRequested();
+	void	InitGUI();
+	virtual void	MessageReceived(BMessage* message);
+	virtual bool	QuitRequested();
 
 private:
-		HWGetSettingView *wgetsetting;
-		HBeGetSettingView* begetsetting;
-		HSoundSettingView*	soundsetting;
+	HWGetSettingView* wgetsetting;
+	HBeGetSettingView* begetsetting;
+	HSoundSettingView*	soundsetting;
 
 };
 #endif

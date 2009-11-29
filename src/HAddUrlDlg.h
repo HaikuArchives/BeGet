@@ -5,21 +5,21 @@
 
 class CTextView;
 
-enum{
+enum {
 	M_OK_MESSAGE = 'MOKM',
 	M_REAL_ADD = 'MREA'
 };
 
-class HAddUrlDlg :public BWindow{
+class HAddUrlDlg : public BWindow {
 public:
-					HAddUrlDlg(BRect rect,
-							const char* url = NULL);
+	HAddUrlDlg(BRect rect,
+			   const char* url = NULL);
 protected:
 	virtual			~HAddUrlDlg();
-	virtual void	MessageReceived(BMessage *message);
-			void	InitGUI();
+	virtual void	MessageReceived(BMessage* message);
+	void	InitGUI();
 private:
 	CTextView*		fURLView;
-	
+
 };
 #endif
