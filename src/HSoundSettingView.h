@@ -5,21 +5,21 @@
 #include <MenuField.h>
 #include <FilePanel.h>
 
-enum{
+enum {
 	M_ITEM_MESSAGE = 'MIEM',
 	M_OTHER_MESSAGE = 'MOTH',
 	M_NONE_MESSAGE = 'NONM'
 };
 
 class HSoundSettingView: public BView {
-public:	
-				HSoundSettingView(BRect rect);
+public:
+	HSoundSettingView(BRect rect);
 	virtual		~HSoundSettingView();
-		void	InitGUI();
+	void	InitGUI();
 	const char*	DownloadSound();
 protected:
-	virtual void	MessageReceived(BMessage *message);
-			void	SetupMenuField();
+	virtual void	MessageReceived(BMessage* message);
+	void	SetupMenuField();
 private:
 	BMenuField*		fMenuField;
 	BFilePanel*		fFilePanel;

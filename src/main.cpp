@@ -1,7 +1,6 @@
 #include "HApp.h"
 
-int main()
-{
+int main() {
 	HApp app;
 	app.Run();
 	return 0;

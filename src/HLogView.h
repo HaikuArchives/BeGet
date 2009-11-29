@@ -3,14 +3,14 @@
 
 #include "CTextView.h"
 
-class HLogView :public CTextView{
+class HLogView : public CTextView {
 public:
-					HLogView(BRect rect,
-							const char* name,
-							int32 resize,
-							int32 flags);
+	HLogView(BRect rect,
+			 const char* name,
+			 int32 resize,
+			 int32 flags);
 	virtual			~HLogView();
-			void	ScrollToEnd();
+	void	ScrollToEnd();
 protected:
 
 private:

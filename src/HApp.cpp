@@ -8,28 +8,26 @@
 /***********************************************************
  * Constructor
  ***********************************************************/
-HApp::HApp() :_inherited(APP_SIG)
-	,fGameSound(NULL)
-{
+HApp::HApp() : _inherited(APP_SIG)
+	, fGameSound(NULL) {
 	fPrefs = new HPrefs("BeGet.prefs");
 	fPrefs->LoadPrefs();
 	BRect rect;
-	
-	fPrefs->GetData("main_window",&rect);
-	
-	fWindow = new HWindow(rect,"BeGet");
+
+	fPrefs->GetData("main_window", &rect);
+
+	fWindow = new HWindow(rect, "BeGet");
 	fWindow->Show();
-	
+
 	const char* path;
-	fPrefs->GetData("snd_download",&path);
+	fPrefs->GetData("snd_download", &path);
 	SetSound(path);
-}	
+}
 
 /***********************************************************
  * Destructor
  ***********************************************************/
-HApp::~HApp()
-{
+HApp::~HApp() {
 	delete fPrefs;
 	delete fGameSound;
 }
@@ -38,27 +36,24 @@ HApp::~HApp()
  * MessageReceived
  ***********************************************************/
 void
-HApp::MessageReceived(BMessage *message)
-{
-	switch(message->what)
-	{
-	case M_ADD_URL:
-	case M_OPEN_FOLDER:
-		fWindow->PostMessage(message);
-		break;
-	case M_SOUND_DOWNLOAD:
-		if(fGameSound)
-			fGameSound->StartPlaying();
-		break;
-	case M_SET_DOWNLOAD_SOUND:
-		{
-			const char *path;
-			if(message->FindString("path",&path) == B_OK)
-				SetSound(path);
+HApp::MessageReceived(BMessage* message) {
+	switch (message->what) {
+		case M_ADD_URL:
+		case M_OPEN_FOLDER:
+			fWindow->PostMessage(message);
 			break;
-		}
-	default:
-		_inherited::MessageReceived(message);
+		case M_SOUND_DOWNLOAD:
+			if (fGameSound)
+				fGameSound->StartPlaying();
+			break;
+		case M_SET_DOWNLOAD_SOUND: {
+				const char* path;
+				if (message->FindString("path", &path) == B_OK)
+					SetSound(path);
+				break;
+			}
+		default:
+			_inherited::MessageReceived(message);
 	}
 }
 
@@ -66,18 +61,15 @@ HApp::MessageReceived(BMessage *message)
  * SetSound
  ***********************************************************/
 void
-HApp::SetSound(const char* path)
-{
-	if(fGameSound)
+HApp::SetSound(const char* path) {
+	if (fGameSound)
 		delete fGameSound;
 	fGameSound = NULL;
-	
-	if( ::strlen(path) > 0)
-	{
+
+	if (::strlen(path) > 0) {
 		fGameSound = new BSimpleGameSound(path);
-		if(fGameSound->InitCheck() != B_OK)
-		{
-			fPrefs->SetData("snd_download","");
+		if (fGameSound->InitCheck() != B_OK) {
+			fPrefs->SetData("snd_download", "");
 			delete fGameSound;
 			fGameSound = NULL;
 			return;
@@ -90,11 +82,10 @@ HApp::SetSound(const char* path)
  *
  ***********************************************************/
 void
-HApp::RefsReceived(BMessage *message)
-{
-	const char *url;
-	if(message->FindString("be:url",&url) == B_OK)
-		fWindow->PostMessage(message);	
+HApp::RefsReceived(BMessage* message) {
+	const char* url;
+	if (message->FindString("be:url", &url) == B_OK)
+		fWindow->PostMessage(message);
 }
 
 
@@ -102,12 +93,11 @@ HApp::RefsReceived(BMessage *message)
  * AboutRequested
  ***********************************************************/
 void
-HApp::AboutRequested()
-{
+HApp::AboutRequested() {
 	(new HAboutWindow("BeGet",
-					__DATE__,
-					"Copyright 1999-2001 Atsushi Takamatsu@Sapporo, Japan.\n"
-					"Now maintained by Scott McCreary.\n",
-					"http://dev.osdrawer.net/projects/show/beget",
-					"haiku@scottmc.com"))->Show();
+					  __DATE__,
+					  "Copyright 1999-2001 Atsushi Takamatsu@Sapporo, Japan.\n"
+					  "Now maintained by Scott McCreary.\n",
+					  "http://dev.osdrawer.net/projects/show/beget",
+					  "haiku@scottmc.com"))->Show();
 }

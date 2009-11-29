@@ -6,13 +6,13 @@
 class CTextView;
 
 class HWGetSettingView: public BView {
-public:	
-				HWGetSettingView(BRect rect);
+public:
+	HWGetSettingView(BRect rect);
 	virtual		~HWGetSettingView();
-		void	InitGUI();
+	void	InitGUI();
 	const char*	Option()const;
 protected:
-	virtual void	MessageReceived(BMessage *message);
+	virtual void	MessageReceived(BMessage* message);
 private:
 	CTextView*	fOptionView;
 };
