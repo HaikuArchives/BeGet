@@ -4,9 +4,9 @@
 #include "CLVEasyItem.h"
 #include <String.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <KernelKit.h>
 #include <Node.h>
-extern char** environ; // Your environment (Gifted by the powers that Be
 
 enum States {
 	T_NOT_CONNECTED = 0,
