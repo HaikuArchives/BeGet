@@ -4,8 +4,6 @@
 #include <Window.h>
 #include <TextView.h>
 
-class CTextView;
-
 enum {
 	M_OK_MESSAGE = 'MOKM',
 	M_REAL_ADD = 'MREA'

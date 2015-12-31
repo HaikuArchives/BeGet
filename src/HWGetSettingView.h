@@ -2,8 +2,7 @@
 #define __HOTHERSETTING_VIEW_H__
 
 #include <View.h>
-
-class CTextView;
+#include <TextView.h>
 
 class HWGetSettingView: public BView {
 public:
@@ -14,6 +13,6 @@ public:
 protected:
 	virtual void	MessageReceived(BMessage* message);
 private:
-	CTextView*	fOptionView;
+	BTextView*	fOptionView;
 };
 #endif

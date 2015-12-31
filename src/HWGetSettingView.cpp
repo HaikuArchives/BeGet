@@ -10,7 +10,6 @@
 #include "HPrefs.h"
 #include "HWGetSettingView.h"
 #include "HApp.h"
-#include "CTextView.h"
 
 /***********************************************************
  * Constructor.
@@ -38,7 +37,7 @@ HWGetSettingView::InitGUI() {
 	rect.top += 10;
 	rect.bottom -= 50;
 
-	fOptionView = new CTextView(rect, "default", B_FOLLOW_ALL, B_WILL_DRAW);
+	fOptionView = new BTextView(rect, "default", B_FOLLOW_ALL, B_WILL_DRAW);
 
 	const char* option;
 	((HApp*)be_app)->Prefs()->GetData("option", &option);

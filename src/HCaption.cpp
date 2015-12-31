@@ -5,7 +5,6 @@
 
 #include "HApp.h"
 #include "HCaption.h"
-#include "Colors.h"
 
 /***********************************************************
  * Constructor.

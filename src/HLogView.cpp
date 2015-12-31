@@ -1,5 +1,6 @@
 #include "HLogView.h"
-#include "Colors.h"
+
+const rgb_color LightGreen =			{90, 240,90,	255};
 
 /***********************************************************
  * Constructor
@@ -8,11 +9,11 @@ HLogView::HLogView(BRect rect,
 				   const char* name,
 				   int32 resize,
 				   int32 flags)
-	: CTextView(rect, name, resize, flags) {
+	: BTextView(rect, name, resize, flags) {
 	SetFontAndColor(be_fixed_font, B_FONT_ALL, &LightGreen);
 
 	SetWordWrap(false);
-	SetViewColor(Black);
+	SetViewColor(0,0,0);
 	MakeEditable(false);
 }
 
