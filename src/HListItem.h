@@ -1,12 +1,13 @@
 #ifndef __HLISTITEM_H__
 #define __HLISTITEM_H__
 
-#include "CLVEasyItem.h"
 #include <String.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <KernelKit.h>
 #include <Node.h>
+#include <private/interface/ColumnListView.h>
+#include <private/interface/ColumnTypes.h>
 
 enum States {
 	T_NOT_CONNECTED = 0,
@@ -22,7 +23,7 @@ enum {
 	M_DELETE_ITEM = 'DLIE'
 };
 
-class HListItem : public CLVEasyItem {
+class HListItem : public BRow {
 public:
 	HListItem(const char* url
 			  , const char* path = NULL

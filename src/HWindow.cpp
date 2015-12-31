@@ -24,6 +24,7 @@
 #include <NodeInfo.h>
 #include <Deskbar.h>
 #include <Debug.h>
+#include <GroupLayout.h>
 
 /***********************************************************
  * Constructor
@@ -70,9 +71,12 @@ HWindow::~HWindow() {
  ***********************************************************/
 void
 HWindow::InitGUI() {
+	//BGroupLayout* bgLayout=new BGroupLayout(B_VERTICAL);
 	BView* bg = new BView(Bounds(), "bg", B_FOLLOW_ALL, 0);
 	bg->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+	//bg->SetLayout(bgLayout);
 
+	/** Add TOOLBAR */
 	BRect toolrect = Bounds();
 	toolrect.top += KeyMenuBar()->Bounds().Height();
 	toolrect.bottom = toolrect.top + 30;
@@ -88,6 +92,7 @@ HWindow::InitGUI() {
 	toolbar->AddSpace();
 	toolbar->AddButton("stopbtn", utils.GetBitmapResource('BBMP', "BMP:STOP"), new BMessage(M_STOP), _("Stop"));
 	toolbar->AddButton("startbtn", utils.GetBitmapResource('BBMP', "BMP:CONNECTING"), new BMessage(M_START), _("Start"));
+
 	/*
 	toolbar->AddSpace();
 	toolbar->AddButton("suspendbtn",utils.GetBitmapResource('BBMP',"BMP:SUSPEND"),new BMessage(M_SUSPEND),_("Suspend"));
@@ -95,8 +100,9 @@ HWindow::InitGUI() {
 	*/
 	bg->AddChild(toolbar);
 
-	BetterScrollView* scroller;
-	fListView = new HListView(Bounds(), &scroller, "downlist");
+	fListView = new HListView("downlist");
+	/*BScrollView* scrollList = new BScrollView("list_scroll",fListView,B_FOLLOW_RIGHT | B_FOLLOW_TOP_BOTTOM,
+											B_WILL_DRAW | B_FRAME_EVENTS, false, true, B_FANCY_BORDER);*/
 
 	fLogView = new HLogView(Bounds(), "logview", B_FOLLOW_ALL, B_WILL_DRAW);
 	BScrollView* scroll = new BScrollView("scroll", fLogView, B_FOLLOW_RIGHT | B_FOLLOW_TOP_BOTTOM,
@@ -106,7 +112,7 @@ HWindow::InitGUI() {
 	rightrect.top += (KeyMenuBar()->Bounds()).Height() + 30;
 	//rightrect.left += 202+ B_V_SCROLL_BAR_WIDTH;
 	rightrect.bottom -= B_H_SCROLL_BAR_HEIGHT;
-	fHSplitter = new SplitPane(rightrect, scroller, scroll, B_FOLLOW_ALL);
+	fHSplitter = new SplitPane(rightrect, fListView, scroll, B_FOLLOW_ALL);
 	fHSplitter->SetBarThickness(BPoint(0, 7));
 	fHSplitter->SetAlignment(B_HORIZONTAL);
 	fHSplitter->SetBarAlignmentLocked(true);
@@ -131,8 +137,9 @@ HWindow::InitGUI() {
 	statusrect.left += 7;
 	statusrect.right -= 7;
 
-	HCaption* view = new HCaption(statusrect, "info", fListView);
-	box->AddChild(view);
+	/* HCAPTION _ ENABLE */
+	//HCaption* view = new HCaption(statusrect, "info", fListView);
+	//box->AddChild(view);
 	bg->AddChild(box);
 
 	AddChild(bg);
@@ -260,10 +267,8 @@ HWindow::CheckExt(const char* in_url , const char* in_ext) {
  ***********************************************************/
 void
 HWindow::MessageReceived(BMessage* message) {
-	int32 sel = fListView->CurrentSelection();
-	HListItem* item = NULL;
-	if (sel >= 0)
-		item = cast_as(fListView->ItemAt(sel), HListItem);
+	HListItem* item = cast_as(fListView->CurrentSelection(), HListItem);
+	int32 sel = fListView->IndexOf(item);
 
 	switch (message->what) {
 		case B_REFS_RECEIVED: {
@@ -279,11 +284,10 @@ HWindow::MessageReceived(BMessage* message) {
 			}
 			// list dbl clicked
 		case M_LIST_DBL_CLICKED: {
-				int32 sel = fListView->CurrentSelection();
-				if (sel >= 0) {
-					HListItem* item = cast_as(fListView->ItemAt(sel), HListItem);
-					const char* path = item->FilePath();
-					if (::strlen(path) != 0 && item->State() == T_FINISHED) {
+				HListItem* sel = cast_as(fListView->CurrentSelection(), HListItem);
+				if (sel) {
+					const char* path = sel->FilePath();
+					if (::strlen(path) != 0 && sel->State() == T_FINISHED) {
 						entry_ref ref;
 						::get_ref_for_path(path, &ref);
 						be_roster->Launch(&ref);
@@ -339,20 +343,22 @@ HWindow::MessageReceived(BMessage* message) {
 		case M_DELETE: {
 				int32 old_selection = sel;
 				while (sel >= 0) {
-					item = cast_as(fListView->ItemAt(sel), HListItem);
+					item = cast_as(fListView->RowAt(sel), HListItem);
 					item->SetForceDelete(true);
 					fListView->DeleteItem(sel);
 					sel = fListView->FindNextSelection(sel - 1);
 				}
-				if (old_selection >= 0)
-					fListView->Select(old_selection);
+				if (old_selection >= 0) {
+					HListItem* oldItem = cast_as(fListView->RowAt(old_selection), HListItem);
+					fListView->AddToSelection(oldItem);
+				}
 				break;
 			}
 			// Delete finished items
 		case M_DELETE_FINISHED: {
-				int32 count = fListView->CountItems();
+				int32 count = fListView->CountRows();
 				for (int32 i = 0; i < count; i ++) {
-					item = cast_as(fListView->ItemAt(i), HListItem);
+					item = cast_as(fListView->RowAt(i), HListItem);
 					if (!item)
 						continue;
 					if (item->State() == T_FINISHED)
@@ -368,7 +374,7 @@ HWindow::MessageReceived(BMessage* message) {
 					if (sel < 0)
 						item = NULL;
 					else
-						item = cast_as(fListView->ItemAt(sel), HListItem);
+						item = cast_as(fListView->RowAt(sel), HListItem);
 				}
 				break;
 			}
@@ -380,7 +386,7 @@ HWindow::MessageReceived(BMessage* message) {
 					if (sel < 0)
 						item = NULL;
 					else
-						item = cast_as(fListView->ItemAt(sel), HListItem);
+						item = cast_as(fListView->RowAt(sel), HListItem);
 				}
 				break;
 			}
@@ -402,19 +408,16 @@ HWindow::MessageReceived(BMessage* message) {
 					if (sel < 0)
 						item = NULL;
 					else
-						item = cast_as(fListView->ItemAt(sel), HListItem);
+						item = cast_as(fListView->RowAt(sel), HListItem);
 				}
 				break;
 			}
 			// Stop
 		case M_STOP: {
-				while (item) {
+				int32 count=fListView->CountRows();
+				for(int i=0;i<count;i++) {
+					HListItem* item = cast_as(fListView->RowAt(i), HListItem);
 					item->Stop();
-					sel = fListView->FindNextSelection(sel);
-					if (sel < 0)
-						item = NULL;
-					else
-						item = cast_as(fListView->ItemAt(sel), HListItem);
 				}
 				break;
 			}
@@ -508,12 +511,9 @@ HWindow::MessageReceived(BMessage* message) {
  ***********************************************************/
 void
 HWindow::Pulse() {
-	int32 sel = fListView->CurrentSelection();
-	if (sel >= 0) {
-		HListItem* item = cast_as(fListView->ItemAt(sel), HListItem);
-		if (!item)
-			return;
-		BString log = item->Log();
+	HListItem* sel = cast_as(fListView->CurrentSelection(), HListItem);
+	if (sel) {
+		BString log = sel->Log();
 
 		int32 old_len = fLogView->TextLength();
 		if (log.Length() < old_len) {
@@ -534,20 +534,18 @@ HWindow::Pulse() {
  ***********************************************************/
 void
 HWindow::MenusBeginning() {
-	int32 sel = fListView->CurrentSelection();
+	HListItem* sel = cast_as(fListView->CurrentSelection(),HListItem);
 	bool selection = true;
-	if (sel < 0)
+	if (!sel)
 		selection = false;
 
 	KeyMenuBar()->FindItem(M_DELETE)->SetEnabled(selection);
 
 	if (selection) {
-		HListItem* item = cast_as(fListView->ItemAt(sel), HListItem);
-
 		//KeyMenuBar()->FindItem(M_SUSPEND)->SetEnabled(item->IsSuspendable() );
 		//KeyMenuBar()->FindItem(M_RESUME)->SetEnabled( item->IsResumable() );
-		KeyMenuBar()->FindItem(M_STOP)->SetEnabled(item->IsStarted());
-		KeyMenuBar()->FindItem(M_START)->SetEnabled(!item->IsStarted());
+		KeyMenuBar()->FindItem(M_STOP)->SetEnabled(sel->IsStarted());
+		KeyMenuBar()->FindItem(M_START)->SetEnabled(!sel->IsStarted());
 	} else {
 		//KeyMenuBar()->FindItem(M_SUSPEND)->SetEnabled(selection);
 		//KeyMenuBar()->FindItem(M_RESUME)->SetEnabled(selection);
@@ -627,10 +625,10 @@ HWindow::OpenAddUrlDlg(const char* url) {
  ***********************************************************/
 bool
 HWindow::QuitRequested() {
-	int32 count = fListView->CountItems();
+	int32 count = fListView->CountRows();
 	fURLSetting->MakeEmpty();
 	for (int32 i = 0; i < count; i++) {
-		HListItem* item = cast_as(fListView->ItemAt(i), HListItem);
+		HListItem* item = cast_as(fListView->RowAt(i), HListItem);
 		if (item)
 			fURLSetting->AddURL(item->URL(), item->FilePath(), item->TotalSize());
 	}

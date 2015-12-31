@@ -12,7 +12,7 @@ add_executable(BeGet ${BEGET_SRCS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-multichar -Woverloaded-virtual -Wno-unknown-pragmas -Wno-ctor-dtor-privacy")
 
 
-target_link_libraries(BeGet "be" "game" "media" "tracker" ${LIBSGB} ${LIBTOOLBAR} ${LIBUTILS} ${LIBLOCALE})
+target_link_libraries(BeGet "be" "game" "media" "tracker" "columnlistview" ${LIBSGB} ${LIBTOOLBAR} ${LIBUTILS} ${LIBLOCALE})
 
 
 #Change the default location of our output

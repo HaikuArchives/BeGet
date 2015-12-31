@@ -1,3 +1,4 @@
+#include <private/interface/ColumnListView.h>
 #include "HListView.h"
 #include "HListItem.h"
 #include "ResourceUtils.h"
@@ -5,25 +6,22 @@
 #include "IconMenuItem.h"
 #include "HPrefs.h"
 #include "HApp.h"
-#include "CLVColumn.h"
 #include "MenuUtils.h"
 #include "PasswordWindow.h"
-#include "BetterScrollView.h"
 
 #include <PopUpMenu.h>
 #include <MenuItem.h>
 #include <ClassInfo.h>
+#include <private/interface/ColumnTypes.h>
 
 
 /***********************************************************
  * Constructor
  ***********************************************************/
-HListView::HListView(BRect rect,
-					 BetterScrollView** scroll,
-					 const char* title)
-	: ColumnListView(rect, (CLVContainerView**)scroll, title, B_FOLLOW_ALL,
+HListView::HListView(const char* title)
+	: BColumnListView(title,
 					 B_WILL_DRAW | B_FRAME_EVENTS | B_NAVIGABLE | B_PULSE_NEEDED,
-					 B_MULTIPLE_SELECTION_LIST, true) {
+					 B_NO_BORDER,true) {
 	int16 cols[6];
 	HPrefs* prefs = ((HApp*)be_app)->Prefs();
 	for (int i = 1; i <= 6; i++) {
@@ -31,19 +29,19 @@ HListView::HListView(BRect rect,
 		name << (int32)i;
 		prefs->GetData(name.String(), &cols[i-1]);
 	}
-	AddColumn(new CLVColumn(NULL, 20, CLV_LOCK_AT_BEGINNING | CLV_NOT_MOVABLE |
-							CLV_NOT_RESIZABLE | CLV_PUSH_PASS | CLV_MERGE_WITH_RIGHT));
-	AddColumn(new CLVColumn(_("Name"), cols[0], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
-	AddColumn(new CLVColumn(_("Total"), cols[1], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
-	AddColumn(new CLVColumn(_("Transfered"), cols[2], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
-	AddColumn(new CLVColumn(_("Average"), cols[3], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
-	AddColumn(new CLVColumn(_("Estimated"), cols[4], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
-	AddColumn(new CLVColumn(_("Elapsed"), cols[5], CLV_NOT_MOVABLE | CLV_TELL_ITEMS_WIDTH));
+	AddColumn(new BBitmapColumn("", 20, 20, 800, B_ALIGN_LEFT),0);
+	AddColumn(new BStringColumn(_("Name"), cols[0], 20, 800, 0, B_ALIGN_LEFT),1);
+	AddColumn(new BStringColumn(_("Total"), cols[1], 20, 800, 0, B_ALIGN_LEFT ),2);
+	AddColumn(new BStringColumn(_("Transfered"), cols[2], 20, 800, 0, B_ALIGN_LEFT),3);
+	AddColumn(new BStringColumn(_("Average"), cols[3], 20, 800, 0, B_ALIGN_LEFT),4);
+	AddColumn(new BStringColumn(_("Estimated"), cols[4], 20, 800, 0, B_ALIGN_LEFT),5);
+	AddColumn(new BStringColumn(_("Elapsed"), cols[5], 20, 800, 0, B_ALIGN_LEFT),6);
 
-	SetSortKey(0);
+	//SetSortKey(0);
 	SetFont(be_fixed_font);
 
-	SetSortFunction(CLVEasyItem::CompareItems);
+	//SetSortFunction(CLVEasyItem::CompareItems);
+	SetSortingEnabled(true);
 
 	SetInvocationMessage(new BMessage(M_LIST_DBL_CLICKED));
 	SetSelectionMessage(new BMessage(M_SELECTION_CHANGED));
@@ -55,7 +53,7 @@ HListView::HListView(BRect rect,
 HListView::~HListView() {
 	HPrefs* prefs = ((HApp*)be_app)->Prefs();
 	for (int16 i = 1; i <= 6; i++) {
-		CLVColumn* col = ColumnAt(i);
+		BStringColumn* col = (BStringColumn*) ColumnAt(i);
 
 		BString name = "col";
 		name << (int32)i;
@@ -130,7 +128,7 @@ HListView::MessageReceived(BMessage* message) {
 				break;
 			}
 		default:
-			ColumnListView::MessageReceived(message);
+			BColumnListView::MessageReceived(message);
 	}
 }
 
@@ -139,10 +137,10 @@ HListView::MessageReceived(BMessage* message) {
  ***********************************************************/
 void
 HListView::GoodbyeFile(node_ref nref) {
-	int32 count = CountItems();
+	int32 count = CountRows();
 
 	for (int32 i = 0; i < count; i++) {
-		HListItem* item = cast_as(ItemAt(i), HListItem);
+		HListItem* item = cast_as(RowAt(i), HListItem);
 		if (!item)
 			continue;
 
@@ -160,25 +158,23 @@ HListView::GoodbyeFile(node_ref nref) {
 void
 HListView::AddURL(const char* url, const char* path, uint32 size) {
 	HListItem* item = new HListItem(url, path, size);
-	if (AddItem(item)) {
-		fPointerList.AddItem(item);
+	AddRow(item);
+	fPointerList.AddItem(item);
 
-		bool auto_start;
-		bool queue;
-		((HApp*)be_app)->Prefs()->GetData("queue", &queue);
-		((HApp*)be_app)->Prefs()->GetData("auto_start", &auto_start);
-		if (!queue) {
-			if (auto_start && item->State() != T_FINISHED)
-				item->Start();
-		} else {
-			int32 max;
-			((HApp*)be_app)->Prefs()->GetData("max_transfer", &max);
-			if (max > CountDownloadingItems() && auto_start && item->State() != T_FINISHED)
-				item->Start();
-		}
-		Select(IndexOf(item));
-	} else
-		delete item;
+	bool auto_start;
+	bool queue;
+	((HApp*)be_app)->Prefs()->GetData("queue", &queue);
+	((HApp*)be_app)->Prefs()->GetData("auto_start", &auto_start);
+	if (!queue) {
+		if (auto_start && item->State() != T_FINISHED)
+			item->Start();
+	} else {
+		int32 max;
+		((HApp*)be_app)->Prefs()->GetData("max_transfer", &max);
+		if (max > CountDownloadingItems() && auto_start && item->State() != T_FINISHED)
+			item->Start();
+	}
+	AddToSelection(item);
 }
 
 /***********************************************************
@@ -191,7 +187,7 @@ HListView::DeletePointers() {
 	while (count > 0) {
 		delete(HListItem*)fPointerList.RemoveItem(--count);
 	}
-	MakeEmpty();
+	Clear();
 }
 
 /***********************************************************
@@ -199,8 +195,9 @@ HListView::DeletePointers() {
  ***********************************************************/
 void
 HListView::DeleteItem(int32 index) {
-	HListItem* item = cast_as(RemoveItem(index), HListItem);
+	HListItem* item = cast_as(RowAt(index), HListItem);
 	fPointerList.RemoveItem(item);
+	RemoveRow(item);
 	delete item;
 
 	HApp* app = cast_as(be_app, HApp);
@@ -213,10 +210,9 @@ HListView::DeleteItem(int32 index) {
 	if (queue) {
 		int32 num_task = max_transfer - CountDownloadingItems();
 		if (num_task > 0) {
-			int32 count = CountItems();
-			HListItem** items = (HListItem**)Items();
+			int32 count = CountRows();
 			for (int32 i = 0; i < count; i++) {
-				item = items[i];
+				item = cast_as(RowAt(i),HListItem);
 				if (!item->IsStarted() && item->State() != T_FINISHED && item->State() != T_NOTFOUND) {
 					item->Start();
 					num_task--;
@@ -234,10 +230,9 @@ HListView::DeleteItem(int32 index) {
 int32
 HListView::CountDownloadingItems() {
 	int32 result = 0;
-	int32 count = CountItems();
-	HListItem** items = (HListItem**)Items();
+	int32 count = CountRows();
 	for (int32 i = 0; i < count; i++) {
-		HListItem* item = items[i];
+		HListItem* item = cast_as(RowAt(i),HListItem);
 		if (!item)
 			continue;
 		if (item->IsStarted())
@@ -260,15 +255,10 @@ HListView::MouseDown(BPoint pos) {
 
 	// Handling of right click
 	if (buttons == B_SECONDARY_MOUSE_BUTTON) {
-		int32 sel = IndexOf(pos);
-		if (sel >= 0)
-			Select(sel);
-		else
-			DeselectAll();
-		sel = CurrentSelection();
-		HListItem* item = NULL;
-		if (sel >= 0)
-			item = cast_as(ItemAt(sel), HListItem);
+		int32 sel = -1;
+		if(RowAt(pos) != NULL)
+			sel = 0;
+		HListItem* item = cast_as(RowAt(pos),HListItem);
 		BPopUpMenu* theMenu = new BPopUpMenu("RIGHT_CLICK", false, false);
 		BFont font(be_plain_font);
 		font.SetSize(10);
@@ -346,7 +336,7 @@ HListView::MouseDown(BPoint pos) {
 		}
 		delete theMenu;
 	} else
-		ColumnListView::MouseDown(point);
+		BColumnListView::MouseDown(point);
 }
 
 /***********************************************************
@@ -354,9 +344,11 @@ HListView::MouseDown(BPoint pos) {
  ***********************************************************/
 int32
 HListView::FindNextSelection(int32 index) {
-	int32 count = CountItems();
+	int32 count = CountRows();
+
 	for (int32 i = index + 1; i < count; i++) {
-		if (IsItemSelected(i))
+		HListItem* item = cast_as(RowAt(i), HListItem);
+		if (item->IsSelected())
 			return i;
 	}
 	return -1;
@@ -379,7 +371,7 @@ HListView::KeyDown(const char* bytes, int32 numBytes) {
 		}*/
 		Window()->PostMessage('MDEL');
 	}
-	ColumnListView::KeyDown(bytes, numBytes);
+	BColumnListView::KeyDown(bytes, numBytes);
 }
 
 /***********************************************************
@@ -387,13 +379,13 @@ HListView::KeyDown(const char* bytes, int32 numBytes) {
  ***********************************************************/
 void
 HListView::Pulse() {
-	register int32 count = fPointerList.CountItems();
+	register int32 count = CountRows();
 
 	while (count > 0) {
-		HListItem* item = cast_as(ItemAt(--count), HListItem);
+		HListItem* item = cast_as(RowAt(--count), HListItem);
 		item->RefreshTime();
 		if (item->IsDirty()) {
-			InvalidateItem(IndexOf(item));
+			InvalidateRow(item);
 			item->SetDirty(false);
 		}
 	}
