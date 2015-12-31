@@ -2,6 +2,7 @@
 #define __HADDURLDLG_H__
 
 #include <Window.h>
+#include <TextView.h>
 
 class CTextView;
 
@@ -19,7 +20,7 @@ protected:
 	virtual void	MessageReceived(BMessage* message);
 	void	InitGUI();
 private:
-	CTextView*		fURLView;
+	BTextView*		fURLView;
 
 };
 #endif

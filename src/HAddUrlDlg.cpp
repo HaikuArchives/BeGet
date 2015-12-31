@@ -1,5 +1,4 @@
 #include "HAddUrlDlg.h"
-#include "CTextView.h"
 #include "HApp.h"
 #include "HWindow.h"
 
@@ -42,7 +41,7 @@ HAddUrlDlg::InitGUI() {
 	rect.bottom -= 5 + 30 + B_H_SCROLL_BAR_HEIGHT;
 	rect.right -= 5 + B_V_SCROLL_BAR_WIDTH;
 
-	fURLView = new CTextView(rect, "url", B_FOLLOW_ALL, B_WILL_DRAW | B_NAVIGABLE);
+	fURLView = new BTextView(rect, "url", B_FOLLOW_ALL, B_WILL_DRAW | B_NAVIGABLE);
 
 	BScrollView* scroll = new BScrollView("scroll", fURLView, B_FOLLOW_ALL, B_WILL_DRAW, false, true);
 	bg->AddChild(scroll);
