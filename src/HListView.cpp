@@ -14,22 +14,27 @@
 #include <ClassInfo.h>
 #include <private/interface/ColumnTypes.h>
 
+filter_result f_click(BMessage* ioMessage, BHandler** ioTarget, BMessageFilter* inFilter)
+{
+	BPoint pos;
+	int32 buttons;
+	ioMessage->FindInt32("buttons",&buttons);
+	ioMessage->FindPoint("where",&pos);
 
-class HStringColumn : public BStringColumn {
-	public:
-	HStringColumn(const char* str, float size)	: BStringColumn(str,size,20,800,0,B_ALIGN_LEFT) {}
+	HWindow* win=cast_as(be_app->WindowAt(0),HWindow);
 
-	void
-	MouseDown(BColumnListView* parent, BRow* row,
-		BField* field, BRect fieldRect,
-		BPoint pos, uint32 buttons)
-	{
-		BPoint point = pos;
-		ResourceUtils utils;
-		MenuUtils menu_utils;
+	HListView* view=win->fListView;
+
+	ResourceUtils utils;
+	BPoint point = pos;
+	MenuUtils menu_utils;
+
 	// Handling of right click
 	if (buttons == B_SECONDARY_MOUSE_BUTTON) {
-		HListItem* item = cast_as(row,HListItem);
+		int32 sel = -1;
+		if(view->RowAt(pos) != NULL)
+			sel = 0;
+		HListItem* item = cast_as(view->RowAt(pos),HListItem);
 		BPopUpMenu* theMenu = new BPopUpMenu("RIGHT_CLICK", false, false);
 		BFont font(be_plain_font);
 		font.SetSize(10);
@@ -79,7 +84,7 @@ class HStringColumn : public BStringColumn {
 							   , _("Start")
 							   , M_START, NULL, NULL
 							   , 0, 0, utils.GetBitmapResource('BBMP', "BMP:CONNECTING"));
-		if (item)
+		if (sel >= 0)
 			theMenu->FindItem(M_START)->SetEnabled(!item->IsStarted());
 		else
 			theMenu->FindItem(M_START)->SetEnabled(false);
@@ -90,10 +95,10 @@ class HStringColumn : public BStringColumn {
 							   , _("Delete")
 							   , M_DELETE, NULL, NULL
 							   , 'T', 0, utils.GetBitmapResource('BBMP', "BMP:TRASH"));
-		theMenu->FindItem(M_DELETE)->SetEnabled((item) ? true : false);
+		theMenu->FindItem(M_DELETE)->SetEnabled((sel >= 0) ? true : false);
 
 		BRect r;
-		parent->ConvertToScreen(&pos);
+		view->Window()->ConvertToScreen(&pos);
 		r.top = pos.y - 5;
 		r.bottom = pos.y + 5;
 		r.left = pos.x - 5;
@@ -103,13 +108,13 @@ class HStringColumn : public BStringColumn {
 		if (theItem) {
 			BMessage*	aMessage = theItem->Message();
 			if (aMessage)
-				parent->Window()->PostMessage(aMessage);
+				view->Window()->PostMessage(aMessage);
 		}
 		delete theMenu;
 	}
-	}
-};
 
+	return B_DISPATCH_MESSAGE;
+}
 
 /***********************************************************
  * Constructor
@@ -126,12 +131,12 @@ HListView::HListView(const char* title)
 		prefs->GetData(name.String(), &cols[i-1]);
 	}
 	AddColumn(new BBitmapColumn("", 20, 20, 800, B_ALIGN_LEFT),0);
-	AddColumn(new HStringColumn(_("Name"), cols[0]),1);
-	AddColumn(new HStringColumn(_("Total"), cols[1]),2);
-	AddColumn(new HStringColumn(_("Transfered"), cols[2]),3);
-	AddColumn(new HStringColumn(_("Average"), cols[3]),4);
-	AddColumn(new HStringColumn(_("Estimated"), cols[4]),5);
-	AddColumn(new HStringColumn(_("Elapsed"), cols[5]),6);
+	AddColumn(new BStringColumn(_("Name"), cols[0], 20,800,0,B_ALIGN_LEFT),1);
+	AddColumn(new BStringColumn(_("Total"), cols[1], 20,800,0,B_ALIGN_LEFT),2);
+	AddColumn(new BStringColumn(_("Transfered"), cols[2], 20,800,0,B_ALIGN_LEFT),3);
+	AddColumn(new BStringColumn(_("Average"), cols[3], 20,800,0,B_ALIGN_LEFT),4);
+	AddColumn(new BStringColumn(_("Estimated"), cols[4], 20,800,0,B_ALIGN_LEFT),5);
+	AddColumn(new BStringColumn(_("Elapsed"), cols[5], 20,800,0,B_ALIGN_LEFT),6);
 
 	//SetSortKey(0);
 	SetFont(be_fixed_font);
@@ -141,6 +146,7 @@ HListView::HListView(const char* title)
 
 	SetInvocationMessage(new BMessage(M_LIST_DBL_CLICKED));
 	SetSelectionMessage(new BMessage(M_SELECTION_CHANGED));
+
 }
 
 /***********************************************************

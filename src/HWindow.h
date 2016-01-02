@@ -2,6 +2,7 @@
 #define __HWINDOW_H__
 
 #include <Window.h>
+#include <SplitView.h>
 
 class SplitPane;
 class HLogView;
@@ -23,6 +24,7 @@ enum {
 class HWindow : public BWindow {
 public:
 	HWindow(BRect rect , const char* name);
+	HListView*		fListView;
 protected:
 	virtual			~HWindow();
 	virtual	bool	QuitRequested();
@@ -40,7 +42,6 @@ protected:
 private:
 	SplitPane*		fHSplitter;
 	HLogView*		fLogView;
-	HListView*		fListView;
 	URLSetting*		fURLSetting;
 
 };

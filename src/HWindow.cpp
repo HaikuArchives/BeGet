@@ -26,6 +26,8 @@
 #include <Debug.h>
 #include <GroupLayout.h>
 
+filter_result f_click(BMessage* ioMessage, BHandler** ioTarget, BMessageFilter* inFilter);
+
 /***********************************************************
  * Constructor
  ***********************************************************/
@@ -55,6 +57,7 @@ HWindow::HWindow(BRect rect , const char* name)
 	// start watching clipboard
 	fListView->MakeFocus(true);
 	be_clipboard->StartWatching(this);
+	AddCommonFilter(new BMessageFilter(B_MOUSE_DOWN,f_click));
 }
 
 /***********************************************************
@@ -496,7 +499,6 @@ HWindow::MessageReceived(BMessage* message) {
 
 				break;
 			}
-
 		default:
 			if (message->WasDropped())
 				WhenDropped(message);
