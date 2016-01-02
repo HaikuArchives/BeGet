@@ -9,7 +9,7 @@
 /***********************************************************
  * Constructor.
  ***********************************************************/
-HCaption::HCaption(BRect rect, const char* name, BListView* target)
+HCaption::HCaption(BRect rect, const char* name, HListView* target)
 	: BView(rect, name, B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM, B_WILL_DRAW | B_PULSE_NEEDED)
 	, fTarget(target)
 	, fOld(-1) {
@@ -47,7 +47,7 @@ HCaption::~HCaption() {
 void
 HCaption::Pulse() {
 	if (fTarget != NULL) {
-		int32 num = fTarget->CountItems();
+		int32 num = fTarget->CountRows();
 		if (num != fOld) {
 			fOld = num;
 			SetCaption(num);

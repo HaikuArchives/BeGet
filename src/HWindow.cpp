@@ -137,9 +137,8 @@ HWindow::InitGUI() {
 	statusrect.left += 7;
 	statusrect.right -= 7;
 
-	/* HCAPTION _ ENABLE */
-	//HCaption* view = new HCaption(statusrect, "info", fListView);
-	//box->AddChild(view);
+	HCaption* view = new HCaption(statusrect, "info", fListView);
+	box->AddChild(view);
 	bg->AddChild(box);
 
 	AddChild(bg);

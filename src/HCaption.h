@@ -6,11 +6,13 @@
 #include <ListView.h>
 #include <iostream>
 
+#include "HListView.h"
+
 class HCaption : public BView {
 public:
 	HCaption(BRect rect,
 			 const char* name,
-			 BListView* target = NULL);
+			 HListView* target = NULL);
 	virtual			~HCaption();
 
 protected:
@@ -18,7 +20,7 @@ protected:
 	virtual void 	Pulse();
 private:
 	BStringView*	 view;
-	BListView*		 fTarget;
+	HListView*		 fTarget;
 	int32			fOld;
 };
 #endif
