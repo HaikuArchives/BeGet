@@ -15,6 +15,102 @@
 #include <private/interface/ColumnTypes.h>
 
 
+class HStringColumn : public BStringColumn {
+	public:
+	HStringColumn(const char* str, float size)	: BStringColumn(str,size,20,800,0,B_ALIGN_LEFT) {}
+
+	void
+	MouseDown(BColumnListView* parent, BRow* row,
+		BField* field, BRect fieldRect,
+		BPoint pos, uint32 buttons)
+	{
+		BPoint point = pos;
+		ResourceUtils utils;
+		MenuUtils menu_utils;
+	// Handling of right click
+	if (buttons == B_SECONDARY_MOUSE_BUTTON) {
+		HListItem* item = cast_as(row,HListItem);
+		BPopUpMenu* theMenu = new BPopUpMenu("RIGHT_CLICK", false, false);
+		BFont font(be_plain_font);
+		font.SetSize(10);
+		theMenu->SetFont(&font);
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Add New Download")
+							   , M_ADD_URL
+							   , NULL, NULL
+							   , 'A', 0, utils.GetBitmapResource('BBMP', "BMP:ADDURL"));
+
+		theMenu->AddSeparatorItem();
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Suspend")
+							   , M_SUSPEND, NULL, NULL
+							   , 0, 0, utils.GetBitmapResource('BBMP', "BMP:SUSPEND"));
+		if (item) {
+			theMenu->FindItem(M_SUSPEND)->SetEnabled(item->IsSuspendable());
+		} else {
+			theMenu->FindItem(M_SUSPEND)->SetEnabled(false);
+		}
+
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Resume")
+							   , M_RESUME, NULL, NULL
+							   , 0, 0, utils.GetBitmapResource('BBMP', "BMP:RESUME"));
+		if (item) {
+			theMenu->FindItem(M_RESUME)->SetEnabled(item->IsResumable());
+		} else {
+			theMenu->FindItem(M_RESUME)->SetEnabled(false);
+		}
+
+		theMenu->AddSeparatorItem();
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Stop")
+							   , M_STOP, NULL, NULL
+							   , 0, 0, utils.GetBitmapResource('BBMP', "BMP:STOP"));
+		if (item)
+			theMenu->FindItem(M_STOP)->SetEnabled(item->IsStarted());
+		else
+			theMenu->FindItem(M_STOP)->SetEnabled(false);
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Start")
+							   , M_START, NULL, NULL
+							   , 0, 0, utils.GetBitmapResource('BBMP', "BMP:CONNECTING"));
+		if (item)
+			theMenu->FindItem(M_START)->SetEnabled(!item->IsStarted());
+		else
+			theMenu->FindItem(M_START)->SetEnabled(false);
+
+		theMenu->AddSeparatorItem();
+
+		menu_utils.AddMenuItem(theMenu
+							   , _("Delete")
+							   , M_DELETE, NULL, NULL
+							   , 'T', 0, utils.GetBitmapResource('BBMP', "BMP:TRASH"));
+		theMenu->FindItem(M_DELETE)->SetEnabled((item) ? true : false);
+
+		BRect r;
+		parent->ConvertToScreen(&pos);
+		r.top = pos.y - 5;
+		r.bottom = pos.y + 5;
+		r.left = pos.x - 5;
+		r.right = pos.x + 5;
+
+		BMenuItem* theItem = theMenu->Go(pos, false, true, r);
+		if (theItem) {
+			BMessage*	aMessage = theItem->Message();
+			if (aMessage)
+				parent->Window()->PostMessage(aMessage);
+		}
+		delete theMenu;
+	}
+	}
+};
+
+
 /***********************************************************
  * Constructor
  ***********************************************************/
@@ -30,12 +126,12 @@ HListView::HListView(const char* title)
 		prefs->GetData(name.String(), &cols[i-1]);
 	}
 	AddColumn(new BBitmapColumn("", 20, 20, 800, B_ALIGN_LEFT),0);
-	AddColumn(new BStringColumn(_("Name"), cols[0], 20, 800, 0, B_ALIGN_LEFT),1);
-	AddColumn(new BStringColumn(_("Total"), cols[1], 20, 800, 0, B_ALIGN_LEFT ),2);
-	AddColumn(new BStringColumn(_("Transfered"), cols[2], 20, 800, 0, B_ALIGN_LEFT),3);
-	AddColumn(new BStringColumn(_("Average"), cols[3], 20, 800, 0, B_ALIGN_LEFT),4);
-	AddColumn(new BStringColumn(_("Estimated"), cols[4], 20, 800, 0, B_ALIGN_LEFT),5);
-	AddColumn(new BStringColumn(_("Elapsed"), cols[5], 20, 800, 0, B_ALIGN_LEFT),6);
+	AddColumn(new HStringColumn(_("Name"), cols[0]),1);
+	AddColumn(new HStringColumn(_("Total"), cols[1]),2);
+	AddColumn(new HStringColumn(_("Transfered"), cols[2]),3);
+	AddColumn(new HStringColumn(_("Average"), cols[3]),4);
+	AddColumn(new HStringColumn(_("Estimated"), cols[4]),5);
+	AddColumn(new HStringColumn(_("Elapsed"), cols[5]),6);
 
 	//SetSortKey(0);
 	SetFont(be_fixed_font);

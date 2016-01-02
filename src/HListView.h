@@ -30,4 +30,5 @@ private:
 	BList	fPointerList;
 
 };
+
 #endif
