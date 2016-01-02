@@ -10,7 +10,7 @@
  * Constructor.
  ***********************************************************/
 HCaption::HCaption(BRect rect, const char* name, HListView* target)
-	: BView(rect, name, B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM, B_WILL_DRAW | B_PULSE_NEEDED)
+	: BView(rect, name, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_PULSE_NEEDED)
 	, fTarget(target)
 	, fOld(-1) {
 	SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));

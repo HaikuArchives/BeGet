@@ -5,9 +5,7 @@
 
 class HLogView : public BTextView {
 public:
-	HLogView(BRect rect,
-			 const char* name,
-			 int32 resize,
+	HLogView(const char* name,
 			 int32 flags);
 	virtual			~HLogView();
 	void	ScrollToEnd();

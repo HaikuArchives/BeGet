@@ -25,6 +25,8 @@
 #include <Deskbar.h>
 #include <Debug.h>
 #include <GroupLayout.h>
+#include <PictureButton.h>
+#include <private/shared/ToolBar.h>
 
 filter_result f_click(BMessage* ioMessage, BHandler** ioTarget, BMessageFilter* inFilter);
 
@@ -33,7 +35,6 @@ filter_result f_click(BMessage* ioMessage, BHandler** ioTarget, BMessageFilter* 
  ***********************************************************/
 HWindow::HWindow(BRect rect , const char* name)
 	: BWindow(rect, name, B_DOCUMENT_WINDOW, 0) {
-	InitMenu();
 	InitGUI();
 	bool deskbar;
 	((HApp*)be_app)->Prefs()->GetData("deskbar", &deskbar);
@@ -74,75 +75,39 @@ HWindow::~HWindow() {
  ***********************************************************/
 void
 HWindow::InitGUI() {
-	//BGroupLayout* bgLayout=new BGroupLayout(B_VERTICAL);
+	BGroupLayout* bgLayout=new BGroupLayout(B_VERTICAL);
 	BView* bg = new BView(Bounds(), "bg", B_FOLLOW_ALL, 0);
 	bg->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-	//bg->SetLayout(bgLayout);
-
-	/** Add TOOLBAR */
-	BRect toolrect = Bounds();
-	toolrect.top += KeyMenuBar()->Bounds().Height();
-	toolrect.bottom = toolrect.top + 30;
-	toolrect.right += 2;
-	toolrect.left -= 2;
+	bg->SetLayout(bgLayout);
 
 	ResourceUtils utils;
-	HToolbar* toolbar = new HToolbar(toolrect, B_FOLLOW_LEFT_RIGHT | B_FOLLOW_TOP);
-	toolbar->AddButton("addbtn", utils.GetBitmapResource('BBMP', "BMP:ADDURL"), new BMessage(M_ADD_URL), _("Add New Download"));
-	toolbar->AddSpace();
-	toolbar->AddButton("trashbtn", utils.GetBitmapResource('BBMP', "BMP:TRASH"), new BMessage(M_DELETE), _("Delete Selected Item"));
+	toolbar = new BPrivate::BToolBar();
+	toolbar->AddAction(new BMessage(M_ADD_URL),this,utils.GetBitmapResource('BBMP', "BMP:ADDURL"),_("Add New Download"));
+	toolbar->AddSeparator();
+	toolbar->AddAction(new BMessage(M_DELETE),this,utils.GetBitmapResource('BBMP', "BMP:TRASH"), _("Delete Selected Item"));
 
-	toolbar->AddSpace();
-	toolbar->AddButton("stopbtn", utils.GetBitmapResource('BBMP', "BMP:STOP"), new BMessage(M_STOP), _("Stop"));
-	toolbar->AddButton("startbtn", utils.GetBitmapResource('BBMP', "BMP:CONNECTING"), new BMessage(M_START), _("Start"));
-
-	/*
-	toolbar->AddSpace();
-	toolbar->AddButton("suspendbtn",utils.GetBitmapResource('BBMP',"BMP:SUSPEND"),new BMessage(M_SUSPEND),_("Suspend"));
-	toolbar->AddButton("resumebtn",utils.GetBitmapResource('BBMP',"BMP:RESUME"),new BMessage(M_RESUME),_("Resume"));
-	*/
-	bg->AddChild(toolbar);
+	toolbar->AddSeparator();
+	toolbar->AddAction(new BMessage(M_STOP),this,utils.GetBitmapResource('BBMP', "BMP:STOP"), _("Stop"));
+	toolbar->AddAction(new BMessage(M_START),this,utils.GetBitmapResource('BBMP', "BMP:CONNECTING"), _("Start"));
 
 	fListView = new HListView("downlist");
-	/*BScrollView* scrollList = new BScrollView("list_scroll",fListView,B_FOLLOW_RIGHT | B_FOLLOW_TOP_BOTTOM,
-											B_WILL_DRAW | B_FRAME_EVENTS, false, true, B_FANCY_BORDER);*/
 
-	fLogView = new HLogView(Bounds(), "logview", B_FOLLOW_ALL, B_WILL_DRAW);
-	BScrollView* scroll = new BScrollView("scroll", fLogView, B_FOLLOW_RIGHT | B_FOLLOW_TOP_BOTTOM,
+	fLogView = new HLogView("logview", B_WILL_DRAW);
+	BScrollView* scroll = new BScrollView("scroll", fLogView,
 										  B_WILL_DRAW | B_FRAME_EVENTS, false, true, B_FANCY_BORDER);
 
-	BRect rightrect = Bounds();
-	rightrect.top += (KeyMenuBar()->Bounds()).Height() + 30;
-	//rightrect.left += 202+ B_V_SCROLL_BAR_WIDTH;
-	rightrect.bottom -= B_H_SCROLL_BAR_HEIGHT;
-	fHSplitter = new SplitPane(rightrect, fListView, scroll, B_FOLLOW_ALL);
-	fHSplitter->SetBarThickness(BPoint(0, 7));
-	fHSplitter->SetAlignment(B_HORIZONTAL);
-	fHSplitter->SetBarAlignmentLocked(true);
-	fHSplitter->SetResizeViewOne(true, true);
-	int32 pos;
-	((HApp*)be_app)->Prefs()->GetData("hbar_pos", &pos);
-	fHSplitter->SetBarPosition(BPoint(0, pos));
-	fHSplitter->SetViewInsetBy(BPoint(0, 0));
-	bg->AddChild(fHSplitter);
+	bgLayout->AddView(InitMenu());
+	bgLayout->AddView(toolbar,2);
+	bgLayout->AddView(fListView,50);
+	bgLayout->AddView(scroll,15);
+
 
 	/****************** StatusBar ***********************/
-	BRect statusrect = this->Bounds();
-	statusrect.bottom += 2;
-	statusrect.top = statusrect.bottom - B_H_SCROLL_BAR_HEIGHT - 1;
-	statusrect.right -= B_V_SCROLL_BAR_WIDTH - 2;
-	statusrect.left--;
-	BBox* box = new BBox(statusrect, "status", B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM, B_WILL_DRAW);
+	BBox* box = new BBox("status", B_WILL_DRAW);
+	bgLayout->AddView(box,5);
 
-	statusrect.OffsetTo(B_ORIGIN);
-	statusrect.top += 2;
-	statusrect.bottom -= 1;
-	statusrect.left += 7;
-	statusrect.right -= 7;
-
-	HCaption* view = new HCaption(statusrect, "info", fListView);
+	HCaption* view = new HCaption(box->Bounds(), "info", fListView);
 	box->AddChild(view);
-	bg->AddChild(box);
 
 	AddChild(bg);
 }
@@ -150,9 +115,9 @@ HWindow::InitGUI() {
 /***********************************************************
  *
  ***********************************************************/
-void
+BMenuBar*
 HWindow::InitMenu() {
-	BMenuBar* menuBar = new BMenuBar(Bounds(), "MENUBAR");
+	BMenuBar* menuBar = new BMenuBar("MENUBAR");
 	BMenu* menu;
 	MenuUtils utils;
 	ResourceUtils res_utils;
@@ -183,7 +148,7 @@ HWindow::InitMenu() {
 	utils.AddMenuItem(menu, _("Delete Selected Item"), M_DELETE, NULL, this, 'T', 0, res_utils.GetBitmapResource('BBMP', "BMP:TRASH"));
 	utils.AddMenuItem(menu, _("Delete Finished Items"), M_DELETE_FINISHED, NULL, this, 'T', B_SHIFT_KEY, res_utils.GetBitmapResource('BBMP', "BMP:TRASHFINISHED"));
 	menuBar->AddItem(menu);
-	this->AddChild(menuBar);
+	return menuBar;
 }
 
 /***********************************************************
@@ -271,6 +236,16 @@ void
 HWindow::MessageReceived(BMessage* message) {
 	HListItem* item = cast_as(fListView->CurrentSelection(), HListItem);
 	int32 sel = fListView->IndexOf(item);
+
+	if(item) {
+		toolbar->SetActionEnabled(M_DELETE,true);
+		toolbar->SetActionEnabled(M_STOP,item->IsStarted());
+		toolbar->SetActionEnabled(M_START,!item->IsStarted());
+	}else{
+		toolbar->SetActionEnabled(M_DELETE,false);
+		toolbar->SetActionEnabled(M_STOP,false);
+		toolbar->SetActionEnabled(M_START,false);
+	}
 
 	switch (message->what) {
 		case B_REFS_RECEIVED: {
@@ -462,48 +437,13 @@ HWindow::MessageReceived(BMessage* message) {
 			PostMessage(message, fListView);
 			break;
 			// Update toolbar buttons
-		case M_UPDATE_TOOLBUTTON: {
-				const char* name = message->FindString("name");
-				void* pointer;
-				message->FindPointer("pointer", &pointer);
-				HToolbarButton* btn = static_cast<HToolbarButton*>(pointer);
-				if (btn == NULL)
-					break;
-				if (::strcmp(name, "trashbtn") == 0) {
-					if (sel < 0)
-						btn->SetEnabled(false);
-					else
-						btn->SetEnabled(true);
-				} else if (::strcmp(name, "startbtn") == 0) {
-					if (sel < 0)
-						btn->SetEnabled(false);
-					else
-						btn->SetEnabled(!item->IsStarted());
-				} else if (::strcmp(name, "stopbtn") == 0) {
-					if (sel < 0)
-						btn->SetEnabled(false);
-					else
-						btn->SetEnabled(item->IsStarted());
-					/*}else if( ::strcmp(name,"suspendbtn") == 0){
-						if(sel < 0)
-							btn->SetEnabled(false);
-						else
-							btn->SetEnabled(item->IsSuspendable());
-					}else if( ::strcmp(name,"resumebtn") == 0){
-						if(sel < 0)
-							btn->SetEnabled(false);
-						else
-							btn->SetEnabled(item->IsResumable());
-					*/
-				}
-
-				break;
-			}
-		default:
+		default: {
 			if (message->WasDropped())
 				WhenDropped(message);
 			else
 				BWindow::MessageReceived(message);
+
+		}
 	}
 }
 
@@ -641,9 +581,9 @@ HWindow::QuitRequested() {
 		deskbar.RemoveItem("BeGet");
 	}
 
-	BPoint pos = fHSplitter->GetBarPosition();
+	/*BPoint pos = fHSplitter->GetBarPosition();
 	int32 y = static_cast<int32>(pos.y);
-	((HApp*)be_app)->Prefs()->SetData("hbar_pos", y);
+	((HApp*)be_app)->Prefs()->SetData("hbar_pos", y);*/
 
 	((HApp*)be_app)->Prefs()->SetData("main_window", Frame());
 	be_app->PostMessage(B_QUIT_REQUESTED);

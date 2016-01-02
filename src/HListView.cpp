@@ -26,7 +26,6 @@ filter_result f_click(BMessage* ioMessage, BHandler** ioTarget, BMessageFilter* 
 	HListView* view=win->fListView;
 
 	ResourceUtils utils;
-	BPoint point = pos;
 	MenuUtils menu_utils;
 
 	// Handling of right click
