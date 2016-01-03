@@ -22,7 +22,7 @@ HCaption::HCaption(const char* name, HListView* target)
 	//this->Draw(this->Bounds());
 	BFont font;
 	GetFont(&font);
-	font.SetSize(10);
+	font.SetSize(font.Size() * 0.75);
 	SetFont(&font);
 }
 
