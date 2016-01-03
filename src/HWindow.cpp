@@ -79,7 +79,7 @@ HWindow::InitGUI() {
 	bg->SetLayout(bgLayout);
 
 	ResourceUtils utils;
-	toolbar = new BPrivate::BToolBar();
+	toolbar = new BToolBar();
 	toolbar->AddAction(new BMessage(M_ADD_URL),this,utils.GetBitmapResource('BBMP', "BMP:ADDURL"),_("Add New Download"));
 	toolbar->AddSeparator();
 	toolbar->AddAction(new BMessage(M_DELETE),this,utils.GetBitmapResource('BBMP', "BMP:TRASH"), _("Delete Selected Item"));

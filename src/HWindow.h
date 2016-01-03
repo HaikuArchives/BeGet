@@ -42,7 +42,7 @@ protected:
 private:
 	HLogView*		fLogView;
 	URLSetting*		fURLSetting;
-	BPrivate::BToolBar* toolbar;
+	BToolBar* toolbar;
 
 };
 #endif
