@@ -8,10 +8,9 @@
 
 #include "HListView.h"
 
-class HCaption : public BView {
+class HCaption : public BStringView {
 public:
-	HCaption(BRect rect,
-			 const char* name,
+	HCaption(const char* name,
 			 HListView* target = NULL);
 	virtual			~HCaption();
 
@@ -19,7 +18,6 @@ protected:
 	void	SetCaption(int32 num);
 	virtual void 	Pulse();
 private:
-	BStringView*	 view;
 	HListView*		 fTarget;
 	int32			fOld;
 };

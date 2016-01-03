@@ -104,7 +104,7 @@ HWindow::InitGUI() {
 	BBox* box = new BBox("status", B_WILL_DRAW);
 	bgLayout->AddView(box,5);
 
-	HCaption* view = new HCaption(box->Bounds(), "info", fListView);
+	HCaption* view = new HCaption("info", fListView);
 	box->AddChild(view);
 
 	AddChild(bg);
