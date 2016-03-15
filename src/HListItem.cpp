@@ -22,7 +22,7 @@
  * Constructor
  ***********************************************************/
 HListItem::HListItem(const char* url, const char* path, uint32 size)
-	: CLVEasyItem(0, false, false, 20.0)
+	: BRow()
 	, fElapsed(0)
 	, fTotalSize(size)
 	, fReceivedSize(0)
@@ -39,10 +39,14 @@ HListItem::HListItem(const char* url, const char* path, uint32 size)
 	, fForceDelete(false)
 	, fLogin("")
 	, fPassword("") {
+	SetState(T_NOT_CONNECTED);
 	// set name field to url
 	SetName(url);
-	// set state to not connected
-	SetState(T_NOT_CONNECTED);
+	SetField(new BStringField(""),2);
+	SetField(new BStringField(""),3);
+	SetField(new BStringField(""),4);
+	SetField(new BStringField(""),5);
+	SetField(new BStringField(""),6);
 	// check exist file
 	if (path)
 		CheckSize();
@@ -175,7 +179,7 @@ void
 HListItem::SetTotalSize(uint32 size) {
 	BString str;
 	str << size;
-	SetColumnContent(2, str.String(), true, true);
+	SetField(new BStringField(str),2);
 	fTotalSize = size;
 	fDirty = true;
 }
@@ -196,7 +200,7 @@ HListItem::RefreshTime() {
 			fElapsed = 0;
 		FormatTime(fElapsed, str);
 
-		SetColumnContent(6, str.String(), true, true);
+		SetField(new BStringField(str),6);
 		fDirty = true;
 		fElapsed = new_time;
 	}
@@ -224,7 +228,7 @@ HListItem::SetReceivedSize(uint32 diff_size) {
 		str << " (" << fReceivedSize * 100 / fTotalSize << "%)";
 	else
 		str << " (" << 0 << "%)";
-	SetColumnContent(3, str.String(), true, true);
+	SetField(new BStringField(str),3);
 
 
 	fOldSize += diff_size;
@@ -247,7 +251,7 @@ HListItem::SetReceivedSize(uint32 diff_size) {
 		else if (ave > 1048510)
 			sprintf(tmp, "%6.2f MB", ave / 1048510.0);
 
-		SetColumnContent(4, tmp, true, true);
+		SetField(new BStringField(tmp),4);
 
 		uint32 remains = fTotalSize - fReceivedSize;
 		int32 rtime = static_cast<int32>(remains / ave);
@@ -256,7 +260,7 @@ HListItem::SetReceivedSize(uint32 diff_size) {
 		str = "";
 
 		FormatTime(rtime, str);
-		SetColumnContent(5, str.String(), true, true);
+		SetField(new BStringField(str),5);
 	}
 
 
@@ -326,8 +330,9 @@ HListItem::SetState(States state) {
 			}
 	}
 
-	if (bitmap)
-		SetColumnContent(0, bitmap);
+	if (bitmap) {
+		SetField(new BBitmapField(bitmap),0);
+	}
 	delete bitmap;
 	fDirty = true;
 }
@@ -336,7 +341,7 @@ HListItem::SetState(States state) {
  ***********************************************************/
 void
 HListItem::SetName(const char* name) {
-	SetColumnContent(1, name, true);
+	SetField(new BStringField(name),1);
 	fDirty = true;
 }
 

@@ -2,8 +2,9 @@
 #define __HWINDOW_H__
 
 #include <Window.h>
+#include <GroupLayout.h>
+#include <private/shared/ToolBar.h>
 
-class SplitPane;
 class HLogView;
 class HListView;
 class URLSetting;
@@ -23,14 +24,15 @@ enum {
 class HWindow : public BWindow {
 public:
 	HWindow(BRect rect , const char* name);
+	HListView*		fListView;
 protected:
 	virtual			~HWindow();
 	virtual	bool	QuitRequested();
 	virtual void	MenusBeginning();
 	virtual void	MessageReceived(BMessage* message);
 	virtual void	DispatchMessage(BMessage* message, BHandler* target);
-	void	InitGUI();
-	void	InitMenu();
+	void		InitGUI();
+	BMenuBar*	InitMenu();
 	void	Pulse();
 	void	OpenAddUrlDlg(const char* url);
 	void	WhenDropped(BMessage* msg);
@@ -38,10 +40,9 @@ protected:
 	bool	CheckExt(const char* url, const char* ext);
 	void	InstallToDeskbar();
 private:
-	SplitPane*		fHSplitter;
 	HLogView*		fLogView;
-	HListView*		fListView;
 	URLSetting*		fURLSetting;
+	BToolBar* toolbar;
 
 };
 #endif

@@ -1,19 +1,17 @@
 #ifndef __HLOGVIEW_H__
 #define __HLOGVIEW_H__
 
-#include "CTextView.h"
+#include <TextView.h>
 
-class HLogView : public CTextView {
+class HLogView : public BTextView {
 public:
-	HLogView(BRect rect,
-			 const char* name,
-			 int32 resize,
+	HLogView(const char* name,
 			 int32 flags);
 	virtual			~HLogView();
 	void	ScrollToEnd();
 protected:
 
 private:
-	typedef CTextView _inherited;
+	typedef BTextView _inherited;
 };
 #endif

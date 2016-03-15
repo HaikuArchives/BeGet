@@ -5,34 +5,25 @@
 
 #include "HApp.h"
 #include "HCaption.h"
-#include "Colors.h"
 
 /***********************************************************
  * Constructor.
  ***********************************************************/
-HCaption::HCaption(BRect rect, const char* name, BListView* target)
-	: BView(rect, name, B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM, B_WILL_DRAW | B_PULSE_NEEDED)
+HCaption::HCaption(const char* name, HListView* target)
+	: BStringView(name,"", B_WILL_DRAW | B_PULSE_NEEDED)
 	, fTarget(target)
 	, fOld(-1) {
 	SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
-	BRect rect1 = rect;
-	rect1.OffsetTo(B_ORIGIN);
-	//
-	rect1.top += 1;
-	//rect1.bottom -=1;
-	rect1.right = rect.right - 3;
-	rect1.left = rect.left + 1;
 	BString title = "";
 	title << "0" << " " << _("items");
-	view = new BStringView(rect1, "", title.String(), B_FOLLOW_ALL);
-	view->SetAlignment(B_ALIGN_RIGHT);
-	this->AddChild(view);
+	SetText(title.String());
+	SetAlignment(B_ALIGN_RIGHT);
 	//this->Draw(this->Bounds());
 	BFont font;
-	view->GetFont(&font);
-	font.SetSize(10);
-	view->SetFont(&font);
+	GetFont(&font);
+	font.SetSize(font.Size() * 0.75);
+	SetFont(&font);
 }
 
 /***********************************************************
@@ -48,7 +39,7 @@ HCaption::~HCaption() {
 void
 HCaption::Pulse() {
 	if (fTarget != NULL) {
-		int32 num = fTarget->CountItems();
+		int32 num = fTarget->CountRows();
 		if (num != fOld) {
 			fOld = num;
 			SetCaption(num);
@@ -70,6 +61,6 @@ HCaption::SetCaption(int32 num) {
 	else
 		str << num << " " << _("items");
 	if (lock.IsLocked()) {
-		view->SetText(str.String());
+		SetText(str.String());
 	}
 }

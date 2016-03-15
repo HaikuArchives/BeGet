@@ -1,7 +1,7 @@
 #ifndef __HLISTVIEW_H__
 #define __HLISTVIEW_H__
 
-#include "ColumnListView.h"
+#include <private/interface/ColumnListView.h>
 #include <Node.h>
 
 enum {
@@ -9,11 +9,9 @@ enum {
 	M_LIST_DBL_CLICKED = 'MLID'
 };
 
-class HListView : public ColumnListView {
+class HListView : public BColumnListView {
 public:
-	HListView(BRect rect,
-			  BetterScrollView** scroll,
-			  const char* name);
+	HListView(const char* name);
 	virtual 		~HListView();
 	void	DeletePointers();
 	void	DeleteItem(int32 index);
@@ -32,4 +30,5 @@ private:
 	BList	fPointerList;
 
 };
+
 #endif

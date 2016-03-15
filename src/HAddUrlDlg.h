@@ -2,8 +2,7 @@
 #define __HADDURLDLG_H__
 
 #include <Window.h>
-
-class CTextView;
+#include <TextView.h>
 
 enum {
 	M_OK_MESSAGE = 'MOKM',
@@ -19,7 +18,7 @@ protected:
 	virtual void	MessageReceived(BMessage* message);
 	void	InitGUI();
 private:
-	CTextView*		fURLView;
+	BTextView*		fURLView;
 
 };
 #endif

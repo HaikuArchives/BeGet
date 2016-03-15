@@ -1,5 +1,4 @@
 #include "HAddUrlDlg.h"
-#include "CTextView.h"
 #include "HApp.h"
 #include "HWindow.h"
 
@@ -7,6 +6,7 @@
 #include <ScrollView.h>
 #include <Button.h>
 #include <String.h>
+#include <GroupLayout.h>
 
 /***********************************************************
  * Constructor
@@ -33,26 +33,18 @@ HAddUrlDlg::~HAddUrlDlg() {
  ***********************************************************/
 void
 HAddUrlDlg::InitGUI() {
+	BGroupLayout* layout=new BGroupLayout(B_VERTICAL);
 	BView* bg = new BView(Bounds(), "bg", B_FOLLOW_ALL, B_WILL_DRAW);
 	bg->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+	bg->SetLayout(layout);
 
-	BRect rect = Bounds();
-	rect.left += 5;
-	rect.top += 5;
-	rect.bottom -= 5 + 30 + B_H_SCROLL_BAR_HEIGHT;
-	rect.right -= 5 + B_V_SCROLL_BAR_WIDTH;
+	fURLView = new BTextView("url", B_WILL_DRAW | B_NAVIGABLE);
 
-	fURLView = new CTextView(rect, "url", B_FOLLOW_ALL, B_WILL_DRAW | B_NAVIGABLE);
+	BScrollView* scroll = new BScrollView("scroll", fURLView, B_WILL_DRAW, false, true);
+	layout->AddView(scroll,5);
 
-	BScrollView* scroll = new BScrollView("scroll", fURLView, B_FOLLOW_ALL, B_WILL_DRAW, false, true);
-	bg->AddChild(scroll);
-
-	rect.top = rect.bottom + 5 + B_H_SCROLL_BAR_HEIGHT;
-	rect.bottom = Bounds().bottom - 5;
-	rect.left = rect.right - 80;
-
-	BButton* button = new BButton(rect, "add", _("Add"), new BMessage(M_OK_MESSAGE), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT);
-	bg->AddChild(button);
+	BButton* button = new BButton("add", _("Add"), new BMessage(M_OK_MESSAGE));
+	layout->AddView(button,1);
 
 	AddChild(bg);
 }
